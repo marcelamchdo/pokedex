@@ -12,14 +12,19 @@
     <button v-if="!isLoading" @click="loadMore">Carregar Mais</button>
     <p v-if="isLoading">Carregando...</p>
 
+    <PokemonDetails v-if="selectedPokemon" :pokemonName="selectedPokemon" />
   </div>
 </template>
 
 <script lang="ts">
 import { defineComponent, ref } from 'vue';
 import { fetchPokemonList } from '../services/pokeApi';
+import PokemonDetails from './PokemonDetails.vue';
 
 export default defineComponent({
+  components: {
+    PokemonDetails,
+  },
   setup() {
     const pokemonList = ref<any[]>([]);
     const offset = ref(0);
