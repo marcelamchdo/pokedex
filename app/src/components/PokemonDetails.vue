@@ -16,6 +16,7 @@
       </li>
     </ul>
   </div>
+  <p v-else>Carregando detalhes do Pokémon...</p>
 </template>
 
 <script lang="ts">
@@ -33,17 +34,20 @@ export default defineComponent({
     setup(props) {
         const pokemonDetails = ref<any | null>(null);
 
-        watch(() => props.pokemonName, async (newName) => {
-            if(newName) {
-                try {
-                    const detailsData = await fetchPokemonDetails(newName);
-                    pokemonDetails.value = detailsData;
-                } catch (e) {
-                    console.error('Erro ao buscar detalhes do Pokémon', e);
-                }
-                }
-            }, { immediate: true });
+        const loadPokemonDetails = async (name: string) => {
+            try {
+                const detailsData = await fetchPokemonDetails(name);
+                pokemonDetails.value = detailsData;
+            } catch (e) {
+                console.error('Erro ao buscar detalhes do Pokémon', e);
+            }
+        }
 
+        watch(() => props.pokemonName, (newName) => {
+            if(newName) {
+                loadPokemonDetails(newName);
+            }
+        }, {immediate: true });
             return {
                 pokemonDetails,
             }

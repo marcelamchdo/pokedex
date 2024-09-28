@@ -9,11 +9,18 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@mantine/core": "^7.13.0",
+    "@mantine/hooks": "^7.13.0",
     "axios": "^1.7.7",
-    "vue": "^3.4.37"
+    "fiber": "^1.0.4",
+    "sass": "^1.79.3",
+    "sass-loader": "^10.5.2",
+    "vue": "^3.4.37",
+    "vuetify": "^3.7.0-beta.1"
   },
   "devDependencies": {
     "@vitejs/plugin-vue": "^5.1.2",
+    "prettier": "^3.3.3",
     "typescript": "^5.5.3",
     "vite": "^5.4.1",
     "vue-tsc": "^2.0.29"
