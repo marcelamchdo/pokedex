@@ -1,7 +1,7 @@
 <template>
     <v-container>
         <h2>Pokémons Favoritos</h2>
-        <v-row>
+        <v-row v-if="favoritePokemons && favoritePokemons.length > 0">
             <v-col
                 v-for="pokemon in favoritePokemons"
                 :key="pokemon.name"
@@ -10,7 +10,7 @@
                 md="4"
             >
                 <v-card
-                    v-if="pokemon && pokemon.name"
+                v-if="pokemon && pokemon.name && pokemon.url"
                     class="pokemon-card"
                     @click="selectPokemon(pokemon.name)"
                 >
@@ -26,7 +26,7 @@
                         <v-card-title>{{
                             capitalize(pokemon.name)
                         }}</v-card-title>
-                        <v-row justify="start" class="pokemon-types">
+                        <v-row v-if="pokemon.types && pokemon.types.length > 0" justify="start" class="pokemon-types">
                             <v-chip
                                 v-for="type in pokemon.types"
                                 :key="type"
@@ -41,24 +41,34 @@
                 </v-card>
             </v-col>
         </v-row>
+        <p v-else>Nenhum Pokémon favorito encontrado.</p>
     </v-container>
 </template>
 
 <script lang="ts">
-import { defineComponent, ref } from 'vue'
+import { defineComponent, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 
-export default defineComponent({
-    setup() {
-        const favoritePokemons = ref<any[]>([])
-        const router = useRouter()
+interface Pokemon {
+    name: string
+    url?: string
+    types?: string[]
+}
 
-        const loadFavorites = () => {
-            const storedFavorites = localStorage.getItem('pokemonFavorites')
-            if (storedFavorites) {
-                favoritePokemons.value = JSON.parse(storedFavorites)
-            }
-        }
+export default defineComponent({
+    props: {
+        favoritePokemons: {
+            type: Array as () => Pokemon[],
+            required: true,
+        },
+        toggleFavorite: {
+            type: Function,
+            required: true,
+        },
+    },
+
+    setup() {
+        const router = useRouter()
 
         const capitalize = (str: string) => {
             if (!str) return ''
@@ -75,10 +85,7 @@ export default defineComponent({
             router.push(`/pokemon/${pokemonName}`)
         }
 
-        loadFavorites()
-
         return {
-            favoritePokemons,
             capitalize,
             getPokemonImage,
             selectPokemon,

@@ -1,4 +1,4 @@
-import { createRouter, createWebHistory } from 'vue-router'
+import { createRouter, createWebHistory, RouteLocation } from 'vue-router'
 import PokemonList from '../components/PokemonList.vue'
 import FavoritePokemons from '../components/FavoritePokemons.vue'
 

@@ -19,6 +19,7 @@
 
 <script>
 import { ref, onMounted } from 'vue'
+import { fetchPokemonList, fetchPokemonDetails } from './services/pokeApi.ts'
 
 export default {
     setup() {
@@ -27,31 +28,26 @@ export default {
         const isLoading = ref(false)
         const offset = ref(0)
 
+        //carrega mais 20 pokemons
         const loadMore = async () => {
-            isLoading.value = true;
+            isLoading.value = true
             try {
                 const response = await fetch(
                     `https://pokeapi.co/api/v2/pokemon?limit=20&offset=${offset.value}`
                 )
-                const data = await response.json();
+                const data = await response.json()
 
-                const pokemonDetailsPromises = data.results.map(
-                    async (pokemon) => {
-                        const detailsResponse = await fetch(pokemon.url)
-                        const detailsData = await detailsResponse.json()
-                        const types = detailsData.types.map((type) => type.type.name);
+                const newPokemonList = await Promise.all(
+                    data.results.map(async (pokemon) => {
+                        const details = await fetchPokemonDetails(pokemon.name)
                         return {
                             ...pokemon,
-                            types,
+                            types: details.types,
                             color: '',
                         }
-                    });
-                    
-                const newPokemonList = data.results.map((pokemon) => ({
-                    ...pokemon,
-                    types: [],
-                    color: '',
-                }))
+                    })
+                )
+
                 pokemonList.value = [...pokemonList.value, ...newPokemonList]
                 offset.value += 20
             } catch (error) {
@@ -61,21 +57,47 @@ export default {
             }
         }
 
+        //carrega lista inicial de pokemons
         const loadPokemonList = async () => {
             try {
                 const response = await fetch(
                     'https://pokeapi.co/api/v2/pokemon?limit=20'
                 )
                 const data = await response.json()
-                pokemonList.value = data.results.map((pokemon) => ({
-                    ...pokemon,
-                    isFavorite: favoritePokemons.value.some(
-                        (fav) => fav.name === pokemon.name
-                    ),
-                }))
+                const pokemonDetailsList = await Promise.all(
+                    data.results.map(async (pokemon) => {
+                        const details = await fetchPokemonDetails(pokemon.name)
+                        return {
+                            ...pokemon,
+                            types: details.types, 
+                            isFavorite: favoritePokemons.value.some(
+                                (fav) => fav.name === pokemon.name
+                            ),
+                        }
+                    })
+                )
+
+                pokemonList.value = pokemonDetailsList
             } catch (error) {
                 console.error('Erro ao carregar a lista de Pokémon', error)
             }
+        }
+
+        //favoritar ou desfavoritar pokemons
+        const toggleFavorite = (pokemon) => {
+            const index = favoritePokemons.value.findIndex(
+                (fav) => fav.name === pokemon.name
+            )
+            if (index >= 0) {
+                favoritePokemons.value.splice(index, 1)
+            } else {
+                favoritePokemons.value.push(pokemon)
+            }
+
+            localStorage.setItem(
+                'pokemonFavorites',
+                JSON.stringify(favoritePokemons.value)
+            )
         }
 
         onMounted(() => {
@@ -83,23 +105,10 @@ export default {
             if (storedFavorites) {
                 favoritePokemons.value = JSON.parse(storedFavorites)
             }
-            loadPokemonList();
-            loadMore();
+            loadPokemonList()
+            loadMore()
         })
 
-        const toggleFavorite = (pokemon) => {
-            if (favoritePokemons.value.includes(pokemon)) {
-                favoritePokemons.value = favoritePokemons.value.filter(
-                    (fav) => fav !== pokemon
-                )
-            } else {
-                favoritePokemons.value.push(pokemon)
-            }
-            localStorage.setItem(
-                'pokemonFavorites',
-                JSON.stringify(favoritePokemons.value)
-            )
-        }
         return {
             pokemonList,
             favoritePokemons,

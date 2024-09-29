@@ -5,6 +5,11 @@ const api = axios.create({
     timeout: 10000,
 })
 
+const handleApiError = (error: any) => {
+    console.error('Erro ao fazer a requisição à API:', error)
+    throw error
+}
+
 export const fetchPokemonList = async (
     offset: number = 0,
     limit: number = 20
@@ -15,18 +20,30 @@ export const fetchPokemonList = async (
         )
         return response.data
     } catch (error) {
-        console.error('Erro ao buscar a lista de Pokémon', error)
-        throw error
+        handleApiError(error)
     }
 }
 
 export const fetchPokemonDetails = async (pokemonNameOrId: string | number) => {
     try {
-        const response = await api.get(`/pokemon/${pokemonNameOrId}`)
-        return response.data
+        const response = await api.get(`/pokemon/${pokemonNameOrId}`);
+    
+        const speciesResponse = await fetchPokemonSpecies(pokemonNameOrId);
+        const pokemonColor = speciesResponse.color.name; 
+
+        const types = response.data.types.map((typeInfo: { type: { name: string } }) => ({
+          name: typeInfo.type.name,
+          color: pokemonColor, 
+        }));
+    
+        return {
+          name: response.data.name,
+          url: response.data.species.url,
+          types,
+          color: pokemonColor, 
+        };
     } catch (error) {
-        console.error('Erro ao buscar detalhes do Pokémon', error)
-        throw error
+        handleApiError(error);
     }
 }
 
@@ -35,7 +52,6 @@ export const fetchPokemonSpecies = async (pokemonNameOrId: string | number) => {
         const response = await api.get(`/pokemon-species/${pokemonNameOrId}`)
         return response.data
     } catch (error) {
-        console.error('Erro ao buscar a espécie do Pokémon', error)
-        throw error
+        handleApiError(error);
     }
 }
