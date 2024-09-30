@@ -18,7 +18,6 @@ export const fetchPokemonList = async (
         const response = await api.get(
             `/pokemon?offset=${offset}&limit=${limit}`
         )
-        // console.log("fetchPokemonList response:", response.data);
         return response.data
     } catch (error) {
         handleApiError(error)
@@ -36,11 +35,18 @@ export const fetchPokemonDetails = async (pokemonNameOrId: string | number) => {
           name: typeInfo.type.name,
           colorName: pokemonColor,
         }));
+
+        const stats = response.data.stats.map((statInfo: {
+            stat: { name: string }, base_stat: number }) => ({
+            name: statInfo.stat.name,
+            base_stat: statInfo.base_stat,
+            }))
     
         return {
           name: response.data.name,
           url: response.data.url,
           types,
+          stats,
           color: pokemonColor, 
         };
     } catch (error) {
@@ -51,7 +57,6 @@ export const fetchPokemonDetails = async (pokemonNameOrId: string | number) => {
 export const fetchPokemonSpecies = async (pokemonNameOrId: string | number) => {
     try {
         const response = await api.get(`/pokemon-species/${pokemonNameOrId}`)
-        // console.log("fetchPokemonSpecies response:", response.data);
         return response.data
     } catch (error) {
         handleApiError(error);

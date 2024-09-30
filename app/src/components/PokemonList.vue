@@ -23,7 +23,7 @@
                     :toggleFavorite="toggleFavorite"
                     :pokemonNumber="getPokemonNumber(pokemon.url)"
                     :pokemonImage="getPokemonImage(pokemon.url)"
-                    :selectPokemon="selectPokemon"
+                    :selectPokemon="() => selectPokemon(pokemon.name, pokemon.url)"
                 />
             </v-col>
         </v-row>
@@ -33,7 +33,10 @@
         </v-btn>
         <p v-if="isLoading">Carregando...</p>
 
-        <PokemonDetails v-if="selectedPokemon" :pokemonName="selectedPokemon" />
+        <PokemonDetails 
+        v-if="selectedPokemon" 
+        :pokemonName="selectedPokemon" 
+        :pokemonImage="getPokemonImage(selectPokemonUrl)"/>
     </v-container>
 </template>
 
@@ -44,10 +47,10 @@ import pokedexImage from '../assets/Pokedex.png'
 import '../styles/index.css'
 
 interface Pokemon {
-    name: string
-    url: string
-    types: { type: { name: string; url: string }; color: string }[]
-    color: string
+    name: string;
+    url: string;
+    type: { name: string; colorName: string }[]; 
+    color: string;
 }
 
 export default {
@@ -89,11 +92,13 @@ export default {
         return {
             pokedexImage,
             selectedPokemon: '',
+            selectPokemonUrl: '',
         }
     },
     methods: {
-        selectPokemon(pokemonName: string) {
+        selectPokemon(pokemonName: string, pokemonUrl: string) {
             this.selectedPokemon = pokemonName
+            this.selectPokemonUrl = pokemonUrl
         },
         isFavorite(pokemonName: string) {
             return this.favoritePokemons.some((fav) => fav.name === pokemonName)

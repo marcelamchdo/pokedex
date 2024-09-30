@@ -17,7 +17,6 @@
                 lg="3"
                 class="d-flex justify-center"
             >
-            {{ console.log('Rendering Pokémon:', pokemon) }}
                 <FavoriteCard
                     :pokemon="pokemon"
                     :isFavorite="true"
@@ -26,14 +25,12 @@
                     :pokemonImage="getPokemonImage(pokemon.url)"
                     :selectPokemon="selectPokemon"
                 />
-                {{ console.log('Rendering Pokemon:', pokemon) }} 
             </v-col>
         </v-row>
 
         <p v-if="filteredFavorites.length === 0">
             Você não tem Pokémons favoritos.
         </p>
-
     </v-container>
 </template>
 
@@ -47,7 +44,7 @@ interface Pokemon {
     url: string
     types: { type: { name: string; url: string }; color: string }[]
     color: string
-    isFavorite: boolean;
+    isFavorite: boolean
 }
 
 export default {
@@ -86,9 +83,9 @@ export default {
     },
     computed: {
         filteredFavorites() {
-            const filtered = this.favoritePokemons.filter(p => p.isFavorite);
-            return filtered;
-        }
+            const filtered = this.favoritePokemons.filter((p) => p.isFavorite)
+            return filtered
+        },
     },
     data() {
         return {
@@ -96,6 +93,7 @@ export default {
             selectedPokemon: '',
         }
     },
+
     methods: {
         selectPokemon(pokemonName: string) {
             this.selectedPokemon = pokemonName
@@ -103,6 +101,6 @@ export default {
         isFavorite(pokemonName: string) {
             return this.favoritePokemons.some((fav) => fav.name === pokemonName)
         },
-    }
+    },
 }
 </script>

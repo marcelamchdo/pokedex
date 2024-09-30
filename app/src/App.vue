@@ -33,12 +33,14 @@ export default {
         const offset = ref(0)
         const selectedPokemon = ref(null)
 
+        //busca número do pokemons
         const getPokemonNumber = (url) => {
             const segments = url.split('/')
             const pokemonId = segments[segments.length - 2]
             return `${pokemonId.padStart(3, '0')}`
         }
 
+        //busca imagem do pokemon em melhor qualidade
         const getPokemonImage = (url) => {
             const segments = url.split('/')
             const pokemonId = segments[segments.length - 2]
@@ -46,6 +48,7 @@ export default {
             return imageUrl
         }
 
+        //pokemon selecionado
         const selectPokemon = (pokemonName) => {
             selectedPokemon.value = pokemonName
         }
@@ -75,6 +78,7 @@ export default {
 
                 pokemonList.value = [...pokemonList.value, ...newPokemonList]
                 offset.value += 20
+                isLoading.value = false
             } catch (error) {
                 console.error('Erro ao carregar a lista de Pokémon:', error)
             } finally {
@@ -107,32 +111,28 @@ export default {
             }
         }
 
-        //favoritar ou desfavoritar pokemons
+        //favorita e desfavorita pokemon
         const toggleFavorite = (pokemon) => {
             const index = favoritePokemons.value.findIndex(
                 (fav) => fav.name === pokemon.name
             )
 
             if (index >= 0) {
-                // Se já estiver nos favoritos, remove
                 favoritePokemons.value.splice(index, 1)
             } else {
-                // Se não estiver, adiciona aos favoritos
                 favoritePokemons.value.push(pokemon)
             }
 
-            // Atualiza o localStorage com os favoritos
             localStorage.setItem(
                 'pokemonFavorites',
                 JSON.stringify(favoritePokemons.value)
             )
 
-            // Atualiza o estado isFavorite de TODOS os Pokémon na lista
             pokemonList.value = pokemonList.value.map((p) => ({
                 ...p,
                 isFavorite: favoritePokemons.value.some(
                     (fav) => fav.name === p.name
-                ), // Atualiza isFavorite para cada Pokémon
+                ),
             }))
         }
 
@@ -141,21 +141,21 @@ export default {
             if (storedFavorites) {
                 try {
                     const parsedFavorites = JSON.parse(storedFavorites)
-                    favoritePokemons.value = parsedFavorites.map((pokemon) => {
-                        if (typeof pokemon === 'object' && pokemon.name) {
-                            return {
-                                ...pokemon,
-                                isFavorite: true, 
-                            };
-                        }
-                        return null;
-                }).filter(Boolean);
-                console.log('Favoritos carregados:', favoritePokemons.value)
-            } catch (e) {
-                console.e("Erro ao carregar favoritos, e");
+                    favoritePokemons.value = parsedFavorites
+                        .map((pokemon) => {
+                            if (typeof pokemon === 'object' && pokemon.name) {
+                                return {
+                                    ...pokemon,
+                                    isFavorite: true,
+                                }
+                            }
+                            return null
+                        })
+                        .filter(Boolean)
+                } catch (e) {
+                    console.e('Erro ao carregar favoritos, e')
+                }
             }
-        }
-            loadPokemonList()
             loadMore()
         })
 
