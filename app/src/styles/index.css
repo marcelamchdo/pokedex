@@ -82,3 +82,8 @@
   display: flex;
   align-self: center;
 }
+
+.favorite-title {
+  font-size: 100px;
+
+}

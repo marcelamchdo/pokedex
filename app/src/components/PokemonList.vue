@@ -9,7 +9,6 @@
             style="min-height: 100vh"
         >
             <v-col
-                v-if="pokemonList.length"
                 v-for="pokemon in pokemonList"
                 :key="pokemon.name"
                 cols="12"
@@ -24,7 +23,7 @@
                     :toggleFavorite="toggleFavorite"
                     :pokemonNumber="getPokemonNumber(pokemon.url)"
                     :pokemonImage="getPokemonImage(pokemon.url)"
-                    @select="selectPokemon"
+                    :selectPokemon="selectPokemon"
                 />
             </v-col>
         </v-row>
@@ -45,9 +44,10 @@ import pokedexImage from '../assets/Pokedex.png'
 import '../styles/index.css'
 
 interface Pokemon {
-    name: string;
-    url: string;
-    types: string[];
+    name: string
+    url: string
+    types: { type: { name: string; url: string }; color: string }[]
+    color: string
 }
 
 export default {
@@ -61,7 +61,7 @@ export default {
             required: true,
         },
         favoritePokemons: {
-            type: Array,
+            type: Array as () => Pokemon[],
             required: true,
         },
         toggleFavorite: {
@@ -76,6 +76,14 @@ export default {
             type: Function,
             required: true,
         },
+        getPokemonNumber: {
+            type: Function,
+            required: true,
+        },
+        getPokemonImage: {
+            type: Function,
+            required: true,
+        },
     },
     data() {
         return {
@@ -85,21 +93,11 @@ export default {
     },
     methods: {
         selectPokemon(pokemonName: string) {
-            this.selectedPokemon = pokemonName;
+            this.selectedPokemon = pokemonName
         },
         isFavorite(pokemonName: string) {
-            return this.favoritePokemons.includes(pokemonName)
+            return this.favoritePokemons.some((fav) => fav.name === pokemonName)
         },
-        getPokemonNumber(url: string) {
-            const segments = url.split('/')
-            const pokemonId = segments[segments.length - 2]
-            return `${pokemonId.padStart(3, '0')}`
-        },
-        getPokemonImage(url: string) {
-            const segments = url.split('/')
-            const pokemonId = segments[segments.length - 2]
-            return `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${pokemonId}.png`
-        },
-    },
+    }
 }
 </script>

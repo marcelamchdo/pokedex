@@ -27,6 +27,7 @@ export default defineComponent({
         pokemonName: {
             type: String,
             required: true,
+            validator: (value: string) => !!value,
         },
     },
 
@@ -36,7 +37,7 @@ export default defineComponent({
         watch(
             () => props.pokemonName,
             async (newName) => {
-                if (newName) {
+                if (newName && newName.trim()) {
                     try {
                         const detailsData = await fetchPokemonDetails(newName)
                         pokemonDetails.value = detailsData
