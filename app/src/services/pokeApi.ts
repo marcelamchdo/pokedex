@@ -26,15 +26,26 @@ export const fetchPokemonList = async (
 
 export const fetchPokemonDetails = async (pokemonNameOrId: string | number) => {
     try {
+        //detalhes pokemon
         const response = await api.get(`/pokemon/${pokemonNameOrId}`);
     
+        //especies pokemon
         const speciesResponse = await fetchPokemonSpecies(pokemonNameOrId);
+        if (!speciesResponse || !speciesResponse.evolution_chain) {
+            throw new Error("Espécie do Pokémon ou cadeia de evolução não encontrada.");
+        }
+
         const pokemonColor = speciesResponse.color.name; 
 
         const types = response.data.types.map((typeInfo: { type: { name: string } }) => ({
           name: typeInfo.type.name,
           colorName: pokemonColor,
         }));
+
+        //cadeia de evolução
+        const evolutionChainId = speciesResponse.evolution_chain.url.split('/').slice(-2, -1)[0];
+        const evolutionChain = await fetchPokemonEvolutions(evolutionChainId) || [];
+        console.log(evolutionChain)
 
         const stats = response.data.stats.map((statInfo: {
             stat: { name: string }, base_stat: number }) => ({
@@ -48,6 +59,7 @@ export const fetchPokemonDetails = async (pokemonNameOrId: string | number) => {
           types,
           stats,
           color: pokemonColor, 
+          evolutions: evolutionChain || [],
         };
     } catch (error) {
         handleApiError(error);
@@ -62,3 +74,30 @@ export const fetchPokemonSpecies = async (pokemonNameOrId: string | number) => {
         handleApiError(error);
     }
 }
+
+export const fetchPokemonEvolutions = async (evolutionChainId: number) => {
+    try {
+
+        const response = await api.get(`/evolution-chain/${evolutionChainId}`);
+        const evolutions = response.data.chain;
+
+        const evolutionChain = [];
+        let current = evolutions;
+
+        while (current) {
+            const pokemonId = current.species.url.split('/').slice(-2, -1)[0];
+            evolutionChain.push({
+                name: current.species.name,
+                imageUrl: `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${pokemonId}.png`,
+            });
+
+            console.log('e',evolutionChain)
+
+            current = current.evolves_to[0];
+        }
+        return evolutionChain;
+    } catch (e) {
+        handleApiError(e);
+        return [];
+    }
+};

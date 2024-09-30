@@ -1,5 +1,5 @@
 <template>
-    <v-container fluid  v-if="pokemonDetails && pokemonDetails.name">
+    <v-container fluid v-if="pokemonDetails && pokemonDetails.name">
         <v-row
             justify="center"
             align="center"
@@ -8,9 +8,7 @@
         >
             <v-col cols="12" sm="6" md="4" lg="3" class="d-flex justify-center">
                 <v-card>
-                    <v-img 
-                    :src="pokemonImage"
-                    alt="Pokemon" height:300px />
+                    <v-img :src="pokemonImage" alt="Pokemon" height:300px />
 
                     <v-card-title class="text-center">
                         {{ capitalize(pokemonDetails.name) }}
@@ -22,12 +20,53 @@
     <div v-if="pokemonDetails && pokemonDetails.stats && pokemonDetails.types">
         <h3>Estatísticas:</h3>
         <ul>
-            <li v-for="stat in pokemonDetails.stats"     
-            :key="stat.name">
+            <li v-for="stat in pokemonDetails.stats" :key="stat.name">
                 {{ stat.name }}: {{ stat.base_stat }}
             </li>
         </ul>
     </div>
+
+    <v-row
+        justify="center"
+        class="pokemon-types"
+        v-if="pokemonDetails && pokemonDetails.stats && pokemonDetails.types"
+    >
+        <v-chip
+            v-for="type in pokemonDetails.types"
+            :key="type.name"
+            class="pokemon-chip"
+            :style="{ backgroundColor: type.colorName }"
+        >
+            {{ type.name }}
+        </v-chip>
+    </v-row>
+
+    <h3 v-if="pokemonDetails.evolutions && pokemonDetails.evolutions.length">
+        Evolutions
+    </h3>
+    <v-row v-if="pokemonDetails.evolutions && pokemonDetails.evolutions.length">
+        <v-col
+            v-for="evolution in pokemonDetails.evolutions"
+            :key="evolution.name"
+            cols="12"
+            sm="6"
+            md="4"
+            lg="3"
+            class="d-flex justify-center"
+        >
+            <v-card>
+                <v-img
+                    :src="evolution.imageUrl"
+                    alt="Evolução"
+                    height="150px"
+                    contain
+                ></v-img>
+                <v-card-title class="text-center">
+                    {{ capitalize(evolution.name) }}
+                </v-card-title>
+            </v-card>
+        </v-col>
+    </v-row>
 </template>
 
 <script lang="ts">
@@ -41,10 +80,10 @@ export default defineComponent({
             required: true,
             validator: (value: string) => !!value,
         },
-        pokemonImage: { type: String, required: true }
+        pokemonImage: { type: String, required: true },
     },
 
-        setup(props) {
+    setup(props) {
         const pokemonDetails = ref<any | null>(null)
 
         const capitalize = (str: string) => {
