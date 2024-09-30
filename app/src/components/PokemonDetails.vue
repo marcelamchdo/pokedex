@@ -1,6 +1,5 @@
 <template>
-<<<<<<< HEAD
-    <v-container fluid>
+    <v-container fluid  v-if="pokemonDetails && pokemonDetails.name">
         <v-row
             justify="center"
             align="center"
@@ -20,7 +19,7 @@
             </v-col>
         </v-row>
     </v-container>
-    <div v-if="pokemonDetails">
+    <div v-if="pokemonDetails && pokemonDetails.stats && pokemonDetails.types">
         <h3>Estatísticas:</h3>
         <ul>
             <li v-for="stat in pokemonDetails.stats"     
@@ -29,26 +28,6 @@
             </li>
         </ul>
     </div>
-=======
-  <div v-if="pokemonDetails">
-    <h2>Detalhes do Pokémon: {{ pokemonDetails.name }}</h2>
-    <p><strong>Altura:</strong> {{ pokemonDetails.height }}</p>
-    <p><strong>Peso:</strong> {{ pokemonDetails.weight }}</p>
-    <h3>Estatísticas:</h3>
-    <ul>
-      <li v-for="stat in pokemonDetails.stats" :key="stat.stat.name">
-        {{ stat.stat.name }}: {{ stat.base_stat }}
-      </li>
-    </ul>
-    <h3>Tipos:</h3>
-    <ul>
-      <li v-for="type in pokemonDetails.types" :key="type.type.name">
-        {{ type.type.name }}
-      </li>
-    </ul>
-  </div>
-  <p v-else>Carregando detalhes do Pokémon...</p>
->>>>>>> 0897be8baac4b7ca7aee632de5ec58814cd74bfc
 </template>
 
 <script lang="ts">
@@ -68,29 +47,9 @@ export default defineComponent({
         setup(props) {
         const pokemonDetails = ref<any | null>(null)
 
-<<<<<<< HEAD
         const capitalize = (str: string) => {
             if (!str) return ''
             return str.charAt(0).toUpperCase() + str.slice(1)
-=======
-        const loadPokemonDetails = async (name: string) => {
-            try {
-                const detailsData = await fetchPokemonDetails(name);
-                pokemonDetails.value = detailsData;
-            } catch (e) {
-                console.error('Erro ao buscar detalhes do Pokémon', e);
-            }
-        }
-
-        watch(() => props.pokemonName, (newName) => {
-            if(newName) {
-                loadPokemonDetails(newName);
-            }
-        }, {immediate: true });
-            return {
-                pokemonDetails,
-            }
->>>>>>> 0897be8baac4b7ca7aee632de5ec58814cd74bfc
         }
 
         watch(
