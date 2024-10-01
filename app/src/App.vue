@@ -8,7 +8,6 @@
                 label="Buscar Pokémon"
                 solo-inverted
                 clearable
-                @input="filterPokemonList"
                 @keydown.enter="searchPokemon"
             />
             <v-btn to="/" text>Todos os Pokémon</v-btn>
@@ -47,7 +46,7 @@ export default {
         const searchQuery = ref('')
         const filteredPokemonList = ref([])
 
-        // Função de busca local
+        // busca pokemon na lista local
         const filterPokemonList = () => {
             const searchValue = searchQuery.value.trim().toLowerCase()
             if (!searchValue) {
@@ -60,9 +59,9 @@ export default {
                 )
             }
         }
-
+//busca pokemon na lista global
         const searchPokemon = async () => {
-            const searchValue = searchQuery.value.trim().toLowerCase() // Obtém o valor da busca
+            const searchValue = searchQuery.value.trim().toLowerCase() 
             if (!searchValue) {
                 filteredPokemonList.value = [...pokemonList.value]
                 return
@@ -80,7 +79,6 @@ export default {
                 try {
                     let pokemonDetails
 
-                    // Verifica se o valor é numérico (busca pelo número do Pokémon)
                     if (!isNaN(searchValue)) {
                         pokemonDetails = await fetchPokemonDetails(
                             Number(searchValue)
@@ -90,11 +88,10 @@ export default {
                     }
 
                     if (pokemonDetails && pokemonDetails.types) {
-                        // Ajuste correto para manter a estrutura de `types` no retorno
                         pokemonDetails.type = pokemonDetails.types.map(
                             (type) => ({
                                 name: type.name,
-                                colorName: type.colorName || 'defaultColor', // Defina uma cor padrão, se necessário
+                                colorName: type.colorName
                             })
                         )
 
@@ -115,11 +112,11 @@ export default {
                         }
                     } else {
                         console.error('Pokémon não encontrado.')
-                        filteredPokemonList.value = [...pokemonList.value] // Reseta a lista
+                        filteredPokemonList.value = [...pokemonList.value] 
                     }
                 } catch (error) {
                     console.error('Erro ao buscar Pokémon:', error)
-                    filteredPokemonList.value = [...pokemonList.value] // Reseta a lista em caso de erro
+                    filteredPokemonList.value = [...pokemonList.value] 
                 }
             }
         }
