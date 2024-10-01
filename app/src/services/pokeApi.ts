@@ -45,7 +45,6 @@ export const fetchPokemonDetails = async (pokemonNameOrId: string | number) => {
         //cadeia de evolução
         const evolutionChainId = speciesResponse.evolution_chain.url.split('/').slice(-2, -1)[0];
         const evolutionChain = await fetchPokemonEvolutions(evolutionChainId) || [];
-        console.log(evolutionChain)
 
         const stats = response.data.stats.map((statInfo: {
             stat: { name: string }, base_stat: number }) => ({
@@ -90,9 +89,6 @@ export const fetchPokemonEvolutions = async (evolutionChainId: number) => {
                 name: current.species.name,
                 imageUrl: `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${pokemonId}.png`,
             });
-
-            console.log('e',evolutionChain)
-
             current = current.evolves_to[0];
         }
         return evolutionChain;

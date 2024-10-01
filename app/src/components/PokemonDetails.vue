@@ -97,7 +97,6 @@ export default defineComponent({
                 if (newName && newName.trim()) {
                     try {
                         const detailsData = await fetchPokemonDetails(newName)
-                        console.log(detailsData)
                         pokemonDetails.value = detailsData
                     } catch (e) {
                         console.error('Erro ao buscar detalhes do Pokémon', e)
