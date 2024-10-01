@@ -31,7 +31,11 @@
 
 <script>
 import { ref, onMounted, nextTick } from 'vue'
-import { fetchPokemonList, fetchPokemonDetails } from './services/pokeApi.ts'
+import {
+    fetchPokemonList,
+    fetchPokemonDetails,
+    fetchAllPokemon,
+} from './services/pokeApi.ts'
 
 export default {
     setup() {
@@ -43,21 +47,7 @@ export default {
         const searchQuery = ref('')
         const filteredPokemonList = ref([])
 
-        //buscar pokemon
-        const searchPokemon = async () => {
-            try {
-                const searchValue = searchQuery.value.trim()
-                if (!searchValue) return
-
-                const pokemonDetails = await fetchPokemonDetails(
-                    searchValue.toLowerCase()
-                )
-                selectedPokemon.value = pokemonDetails
-            } catch (error) {
-                console.error('Erro ao buscar Pokémon:', error)
-            }
-        }
-
+        // Função de busca local
         const filterPokemonList = () => {
             const searchValue = searchQuery.value.trim().toLowerCase()
             if (!searchValue) {
@@ -71,17 +61,85 @@ export default {
             }
         }
 
+        const searchPokemon = async () => {
+            const searchValue = searchQuery.value.trim().toLowerCase() // Obtém o valor da busca
+            if (!searchValue) {
+                filteredPokemonList.value = [...pokemonList.value]
+                return
+            }
+
+            const localMatch = pokemonList.value.find(
+                (pokemon) =>
+                    pokemon.name.toLowerCase() === searchValue ||
+                    getPokemonNumber(pokemon.url) === searchValue
+            )
+
+            if (localMatch) {
+                filteredPokemonList.value = [localMatch]
+            } else {
+                try {
+                    let pokemonDetails
+
+                    // Verifica se o valor é numérico (busca pelo número do Pokémon)
+                    if (!isNaN(searchValue)) {
+                        pokemonDetails = await fetchPokemonDetails(
+                            Number(searchValue)
+                        )
+                    } else {
+                        pokemonDetails = await fetchPokemonDetails(searchValue)
+                    }
+
+                    if (pokemonDetails && pokemonDetails.types) {
+                        // Ajuste correto para manter a estrutura de `types` no retorno
+                        pokemonDetails.type = pokemonDetails.types.map(
+                            (type) => ({
+                                name: type.name,
+                                colorName: type.colorName || 'defaultColor', // Defina uma cor padrão, se necessário
+                            })
+                        )
+
+                        if (pokemonDetails) {
+                            pokemonDetails.url = `https://pokeapi.co/api/v2/pokemon/${pokemonDetails.name}`
+                            pokemonDetails.id = pokemonDetails.id || searchValue
+
+                            if (
+                                !pokemonDetails.types ||
+                                pokemonDetails.types.length === 0
+                            ) {
+                                console.error(
+                                    'Os tipos do Pokémon não foram carregados corretamente.'
+                                )
+                            }
+
+                            filteredPokemonList.value = [pokemonDetails]
+                        }
+                    } else {
+                        console.error('Pokémon não encontrado.')
+                        filteredPokemonList.value = [...pokemonList.value] // Reseta a lista
+                    }
+                } catch (error) {
+                    console.error('Erro ao buscar Pokémon:', error)
+                    filteredPokemonList.value = [...pokemonList.value] // Reseta a lista em caso de erro
+                }
+            }
+        }
+
         //busca número do pokemons
-        const getPokemonNumber = (url) => {
+        const getPokemonNumber = (url, id) => {
             const segments = url.split('/')
-            const pokemonId = segments[segments.length - 2]
-            return `${pokemonId.padStart(3, '0')}`
+            const pokemonId = id || (url ? segments[segments.length - 2] : null)
+            if (!pokemonId) return ''
+
+            return String(pokemonId).padStart(3, '0')
         }
 
         //busca imagem do pokemon em melhor qualidade
-        const getPokemonImage = (url) => {
+        const getPokemonImage = (url, id) => {
             const segments = url.split('/')
-            const pokemonId = segments[segments.length - 2]
+            const pokemonId = id || (url ? segments[segments.length - 2] : null)
+
+            if (!pokemonId) return ''
+
             const imageUrl = `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${pokemonId}.png`
             return imageUrl
         }
@@ -93,15 +151,12 @@ export default {
 
         //carrega mais 20 pokemons
         const loadMore = async () => {
-            console.log('LoadMore foi chamado')
             isLoading.value = true
             try {
-                console.log('Offset atual:', offset.value)
                 const response = await fetch(
                     `https://pokeapi.co/api/v2/pokemon?limit=20&offset=${offset.value}`
                 )
                 const data = await response.json()
-                console.log('Resposta da API:', data.results)
 
                 const newPokemonList = await Promise.all(
                     data.results.map(async (pokemon) => {
@@ -117,21 +172,18 @@ export default {
                     })
                 )
 
-                pokemonList.value = [...pokemonList.value, ...newPokemonList];
-                console.log('Lista atualizada de Pokémon:', pokemonList.value);
+                pokemonList.value = [...pokemonList.value, ...newPokemonList]
 
                 if (!searchQuery.value) {
                     filteredPokemonList.value = [...pokemonList.value]
                 }
 
                 offset.value += 20
-                console.log('Novos pokemons carregados', newPokemonList)
             } catch (error) {
                 console.error('Erro ao carregar a lista de Pokémon:', error)
             } finally {
                 isLoading.value = false
                 await nextTick()
-                console.log('Estado de carregamento:', isLoading.value)
             }
         }
 

@@ -55,12 +55,12 @@
 
             <v-row justify="center" class="pokemon-types">
                 <v-chip
-                    v-for="type in pokemon.types"
-                    :key="type.type.name"
+                    v-for="type in pokemon.type"
+                    :key="type.name"
                     class="pokemon-chip"
-                    :style="{ backgroundColor: type.color }"
+                    :style="{ backgroundColor: type.colorName }"
                 >
-                    {{ type.type.name }}
+                    {{ type.name }}
                 </v-chip>
             </v-row>
         </div>
@@ -71,7 +71,7 @@
 interface Pokemon {
     name: string;
     url: string;
-    types: { type: { name: string; url: string }; color: string }[]; 
+    type: { name: string; colorName: string }[]; 
     color: string;
 }
 export default {

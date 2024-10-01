@@ -21,8 +21,8 @@
                     :pokemon="pokemon"
                     :isFavorite="isFavorite(pokemon.name)"
                     :toggleFavorite="toggleFavorite"
-                    :pokemonNumber="getPokemonNumber(pokemon.url)"
-                    :pokemonImage="getPokemonImage(pokemon.url)"
+                    :pokemonNumber="getPokemonNumber(pokemon.url, pokemon.id)"
+                    :pokemonImage="getPokemonImage(pokemon.url, pokemon.id)"
                     :selectPokemon="() => selectPokemon(pokemon.name, pokemon.url)"
                 />
             </v-col>
@@ -49,6 +49,7 @@ import '../styles/index.css'
 interface Pokemon {
     name: string;
     url: string;
+    id?: number;
     type: { name: string; colorName: string }[]; 
     color: string;
 }
