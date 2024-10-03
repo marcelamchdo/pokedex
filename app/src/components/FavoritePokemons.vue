@@ -1,7 +1,5 @@
 <template>
     <v-container fluid>
-        <v-img :src="pokedexImage" class="pokedex-image"></v-img>
-
         <v-row
             justify="center"
             align="center"
@@ -35,14 +33,13 @@
 </template>
 
 <script lang="ts">
-import pokedexImage from '../assets/Pokedex.png'
 import '../styles/index.css'
 import FavoriteCard from './FavoriteCard.vue'
 
 interface Pokemon {
     name: string
     url: string
-    types: { type: { name: string; url: string }; color: string }[]
+    type: { name: string; colorName: string }[]; 
     color: string
     isFavorite: boolean
 }
@@ -89,7 +86,6 @@ export default {
     },
     data() {
         return {
-            pokedexImage,
             selectedPokemon: '',
         }
     },

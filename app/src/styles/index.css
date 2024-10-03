@@ -1,3 +1,16 @@
+.app-bar {
+  display: flex;
+  padding: 16px !important;
+  background-color: #960910 !important;
+}
+
+.input {
+  color: white !important;
+  opacity: 1 !important;
+}
+
+
+
 .pokemon-card {
   border-radius: 8px;
   box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
@@ -21,12 +34,26 @@
   position: absolute;
   top: 10px;
   left: 10px;
-  background-color: #d7040f;
+  background-color: #960910;
   color: white;
   padding: 4px 8px;
   border-radius: 8px !important;
   font-size: 12px !important;
   z-index: 2;
+}
+
+div.v-card-text {
+  background-color: white;
+}
+
+header.v-toolbar {
+  font-size: 24px !important;
+  background-color: #960910;
+  color: white;
+}
+
+div.vtoolbar_content {
+  font-size: 24px !important;
 }
 
 .pokemon-image-container {

@@ -1,5 +1,6 @@
-import { ref, nextTick, Ref } from 'vue'
-import { fetchPokemonDetails } from '../services/pokeApi.ts' // Atualize o caminho se necessário
+import { ref, nextTick, Ref, watch, onMounted } from 'vue'
+import { fetchPokemonDetails } from '../services/pokeApi.ts'
+import axios from 'axios'
 
 interface Pokemon {
     name: string
@@ -17,6 +18,10 @@ export function usePokemons(
 ) {
     const isLoading = ref(false)
     const offset = ref(0)
+    const loadingTypes = ref(false)
+    const pokemonTypes = ref([])
+    let error = ref<string | null>(null)
+    const selectedTypes = ref([])
 
     //carrega lista inicial de 20 pokemons
     const loadPokemonList = async () => {
@@ -81,9 +86,54 @@ export function usePokemons(
         }
     }
 
+    //buscar tipos de pokemon
+    const fetchPokemonTypes = async () => {
+        loadingTypes.value = true
+        try {
+            const response = await axios.get('https://pokeapi.co/api/v2/type')
+            pokemonTypes.value = response.data.results.map(
+                (type: any) => type.name
+            )
+        } catch (err) {
+            error.value = 'Erro ao carregar tipos de Pokémon'
+        } finally {
+            loadingTypes.value = false
+        }
+    }
+
+    //filtrar pokemon por tipo
+    watch(selectedTypes, () => {
+         if (selectedTypes.value.length > 0) {
+            filteredPokemonList.value = pokemonList.value.filter((pokemon) => {
+                if (!pokemon.types || !Array.isArray(pokemon.types)) {
+                    return false
+                }
+
+                return selectedTypes.value.some((type) => {
+                    return pokemon.types.some((pokemonType) => {
+                        if (pokemonType && pokemonType.name) {
+                            return pokemonType?.name === type
+                        }
+                        return false
+                    })
+                })
+            })
+        } else {
+            filteredPokemonList.value = [...pokemonList.value]
+        }
+    })
+
+    onMounted(async () => {
+        await fetchPokemonTypes();
+    });
+
     return {
         loadMore,
         isLoading,
         loadPokemonList,
+        selectedTypes,
+        pokemonTypes,
+        loadingTypes,
+        error,
     }
 }

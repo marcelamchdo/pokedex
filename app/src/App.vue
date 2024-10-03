@@ -1,22 +1,44 @@
 <template>
     <v-app>
-        <v-app-bar app color="primary" dark>
-            <v-toolbar-title>Pokedex</v-toolbar-title>
+        <v-app-bar app dark class="app-bar">
+            <v-img :src="pokedexImage" class="pokedex-image"></v-img>
             <v-spacer></v-spacer>
-            <v-text-field
-                v-model="searchQuery"
-                label="Buscar Pokémon"
-                solo-inverted
-                clearable
-                @keydown.enter="searchPokemon"
-            />
-            <v-btn to="/" text>Todos os Pokémon</v-btn>
-            <v-btn to="/favorites" text>Favoritos</v-btn>
+
+            <template v-if="showSearch">
+                <v-text-field
+                    v-model="searchQuery"
+                    label="Buscar Pokémon"
+                    outlined
+                    clearable
+                    density="compact"
+                    hide-details="auto"
+                    variant="outlined"
+                    prepend-inner-icon="mdi-magnify"
+                    @keydown.enter="searchPokemon"
+                    class="input"
+                    opacity="1"
+                />
+            </template>
+
+            <template v-else>
+                <v-btn class="input" icon @click="toggleSearch">
+                    <v-icon>mdi-magnify</v-icon>
+                </v-btn>
+            </template>
+
+            <v-btn class="input" icon @click="toggleFilterSheet">
+                <v-icon>mdi-filter-variant</v-icon>
+            </v-btn>
         </v-app-bar>
 
         <v-main>
             <v-container>
-                <v-alert v-if="errorMessage" type="error" class="mt-3">{{ errorMessage }}</v-alert>
+                <v-btn to="/" text>Todos os Pokémon</v-btn>
+                <v-btn to="/favorites" text>Favoritos</v-btn>
+
+                <v-alert v-if="errorMessage" type="error" class="mt-3">{{
+                    errorMessage
+                }}</v-alert>
 
                 <router-view
                     :pokemonList="filteredPokemonList"
@@ -30,12 +52,23 @@
                     :selectPokemon="selectPokemon"
                 />
             </v-container>
+
+            <template>
+                <BottomSheetFilter
+                    :pokemonTypes="pokemonTypes"
+                    :selectedTypes="selectedTypes"
+                    :showFilterSheet="showFilterSheet"
+                    @update:selectedTypes="setSelectedTypes"
+                    @update:showFilterSheet="setShowFilterSheet"
+                    @apply-filter="applyFilter"
+                />
+            </template>
         </v-main>
     </v-app>
 </template>
 
 <script>
-import { ref, onMounted, nextTick } from 'vue'
+import { ref, onMounted, nextTick, watch } from 'vue'
 import {
     fetchPokemonList,
     fetchPokemonDetails,
@@ -44,33 +77,71 @@ import {
 import { useUtils } from './composables/useUtils.ts'
 import { useFavorites } from './composables/useFavorites.ts'
 import { usePokemons } from './composables/usePokemons.ts'
+import pokedexImage from './assets/Pokedex.png'
+import { useDisplay } from 'vuetify'
+import BottomSheetFilter from './components/BottomSheetFilter.vue'
+import { useSearchAndFilter } from './composables/useSearchAndFilter.ts'
 
 export default {
+    components: {
+        BottomSheetFilter,
+    },
     setup() {
+        const { smAndDown } = useDisplay()
         const favoritePokemons = ref([])
         const pokemonList = ref([])
-        const searchQuery = ref('')
         const filteredPokemonList = ref([])
-        const errorMessage = ref('')
 
-        const { getPokemonNumber, getPokemonImage, selectPokemon } = useUtils()
-        const { toggleFavorite } = useFavorites(favoritePokemons, pokemonList)
-        const { loadMore, isLoading, loadPokemonList } = usePokemons(
+        const {
+            searchQuery,
+            errorMessage,
+            showSearch,
+            toggleSearch,
+            closeFilterSheet,
+            showFilterSheet,
+            toggleFilterSheet,
+        } = useSearchAndFilter(pokemonList, filteredPokemonList)
+
+        const {
+            selectedTypes,
+            loadMore,
+            isLoading,
+            loadPokemonList,
+            pokemonTypes,
+        } = usePokemons(
             pokemonList,
             favoritePokemons,
             searchQuery,
             filteredPokemonList
         )
 
+        const { getPokemonNumber, getPokemonImage, selectPokemon } = useUtils()
+        const { toggleFavorite } = useFavorites(favoritePokemons, pokemonList)
+
         const selectedPokemon = ref(null)
+
+        const setSelectedTypes = (value) => {
+            selectedTypes.value = value
+        }
+
+        const setShowFilterSheet = (value) => {
+            showFilterSheet.value = value
+        }
+
+        const applyFilter = () => {
+            filteredPokemonList.value = pokemonList.value.filter((pokemon) => {
+                return (
+                    pokemon.type[0]?.name &&
+                    selectedTypes.value.includes(pokemon.type[0].name)
+                )
+            })
+        }
 
         //busca pokemon na lista global
         const searchPokemon = async () => {
             const searchValue = searchQuery.value.trim().toLowerCase()
-            console.log('Valor da busca:', searchValue)
 
             if (!searchValue) {
-                console.log('Busca vazia')
                 errorMessage.value = ''
                 filteredPokemonList.value = [...pokemonList.value]
                 return
@@ -83,13 +154,9 @@ export default {
             )
 
             if (localMatch) {
-                console.log('Pokémon encontrado localmente', localMatch)
                 errorMessage.value = ''
                 filteredPokemonList.value = [localMatch]
             } else {
-                console.log(
-                    'Nenhum Pokémon encontrado localmente, iniciando busca externa'
-                )
                 try {
                     let pokemonDetails
 
@@ -102,10 +169,6 @@ export default {
                     }
 
                     if (pokemonDetails && pokemonDetails.types) {
-                        console.log(
-                            'Pokémon encontrado externamente:',
-                            pokemonDetails
-                        )
                         pokemonDetails.type = pokemonDetails.types.map(
                             (type) => ({
                                 name: type.name,
@@ -155,6 +218,7 @@ export default {
         })
 
         return {
+            smAndDown,
             getPokemonNumber,
             getPokemonImage,
             selectPokemon,
@@ -168,6 +232,19 @@ export default {
             searchPokemon,
             searchQuery,
             errorMessage,
+            selectedTypes,
+            pokemonTypes,
+            pokedexImage,
+            showSearch,
+            toggleSearch,
+            toggleFilterSheet,
+            closeFilterSheet,
+            applyFilter,
+            showFilterSheet,
+            setSelectedTypes,
+            setShowFilterSheet,
+            toggleFilterSheet,
+            selectedTypes,
         }
     },
 }

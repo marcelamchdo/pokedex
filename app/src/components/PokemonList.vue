@@ -1,7 +1,5 @@
 <template>
     <v-container fluid>
-        <v-img :src="pokedexImage" class="pokedex-image"></v-img>
-
         <v-row
             justify="center"
             align="center"
@@ -43,13 +41,12 @@
 <script lang="ts">
 import PokemonCard from './PokemonCard.vue'
 import PokemonDetails from './PokemonDetails.vue'
-import pokedexImage from '../assets/Pokedex.png'
 import '../styles/index.css'
 
 interface Pokemon {
     name: string;
     url: string;
-    id?: number;
+    id?: null,
     type: { name: string; colorName: string }[]; 
     color: string;
 }
@@ -91,7 +88,6 @@ export default {
     },
     data() {
         return {
-            pokedexImage,
             selectedPokemon: '',
             selectPokemonUrl: '',
         }

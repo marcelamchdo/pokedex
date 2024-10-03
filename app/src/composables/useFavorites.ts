@@ -20,13 +20,11 @@ export function useFavorites(
       favoritePokemons.value.push(pokemon);
     }
 
-    // Atualiza o localStorage
     localStorage.setItem(
       'pokemonFavorites',
       JSON.stringify(favoritePokemons.value)
     );
-
-    // Atualiza a lista de Pokémon, definindo o estado de favoritos
+    
     pokemonList.value = pokemonList.value.map((p) => ({
       ...p,
       isFavorite: favoritePokemons.value.some((fav) => fav.name === p.name),
