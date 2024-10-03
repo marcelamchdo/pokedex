@@ -35,11 +35,15 @@
 <script lang="ts">
 import '../styles/index.css'
 import FavoriteCard from './FavoriteCard.vue'
+import { useFavorites } from '../composables/useFavorites'
+import { useUtils } from '../composables/useUtils.ts'
+
+import { ref } from 'vue'
 
 interface Pokemon {
     name: string
     url: string
-    type: { name: string; colorName: string }[]; 
+    type: { name: string; colorName: string }[]
     color: string
     isFavorite: boolean
 }
@@ -78,25 +82,21 @@ export default {
             required: true,
         },
     },
-    computed: {
-        filteredFavorites() {
-            const filtered = this.favoritePokemons.filter((p) => p.isFavorite)
-            return filtered
-        },
-    },
-    data() {
-        return {
-            selectedPokemon: '',
-        }
-    },
+    setup(props) {
+        const favoritePokemonsRef = ref(props.favoritePokemons);
+        const pokemonListRef = ref(props.pokemonList);
 
-    methods: {
-        selectPokemon(pokemonName: string) {
-            this.selectedPokemon = pokemonName
-        },
-        isFavorite(pokemonName: string) {
-            return this.favoritePokemons.some((fav) => fav.name === pokemonName)
-        },
+        const { selectedPokemon, selectPokemon } = useUtils(pokemonListRef);
+
+        const { filteredFavorites, toggleFavorite } =
+            useFavorites(favoritePokemonsRef, pokemonListRef)
+
+        return {
+            filteredFavorites,
+            toggleFavorite,
+            selectPokemon,
+            selectedPokemon,
+        }
     },
 }
 </script>
