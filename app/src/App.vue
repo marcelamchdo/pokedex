@@ -29,6 +29,8 @@
             <v-btn class="input" icon @click="toggleFilterSheet">
                 <v-icon>mdi-filter-variant</v-icon>
             </v-btn>
+
+            <v-btn @click="toggleTheme">toggle theme</v-btn>
         </v-app-bar>
 
         <v-main>
@@ -78,7 +80,7 @@ import { useUtils } from './composables/useUtils.ts'
 import { useFavorites } from './composables/useFavorites.ts'
 import { usePokemons } from './composables/usePokemons.ts'
 import pokedexImage from './assets/Pokedex.png'
-import { useDisplay } from 'vuetify'
+import { useDisplay, useTheme } from 'vuetify'
 import BottomSheetFilter from './components/BottomSheetFilter.vue'
 import { useSearchAndFilter } from './composables/useSearchAndFilter.ts'
 
@@ -91,6 +93,7 @@ export default {
         const favoritePokemons = ref([])
         const pokemonList = ref([])
         const filteredPokemonList = ref([])
+        const theme = useTheme()
 
         const {
             searchQuery,
@@ -119,6 +122,12 @@ export default {
         const { toggleFavorite } = useFavorites(favoritePokemons, pokemonList)
 
         const selectedPokemon = ref(null)
+
+        function toggleTheme() {
+            theme.global.name.value = theme.global.current.value.dark
+                ? 'light'
+                : 'dark'
+        }
 
         const setSelectedTypes = (value) => {
             selectedTypes.value = value
@@ -244,6 +253,7 @@ export default {
             setShowFilterSheet,
             toggleFilterSheet,
             selectedTypes,
+            toggleTheme,
         }
     },
 }
