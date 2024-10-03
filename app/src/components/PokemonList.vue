@@ -34,7 +34,8 @@
         <PokemonDetails 
         v-if="selectedPokemon" 
         :pokemonName="selectedPokemon" 
-        :pokemonImage="getPokemonImage(selectPokemonUrl)"/>
+        :pokemonImage="getPokemonImage(selectPokemonUrl)"
+        v-model:dialog="dialog"/>
     </v-container>
 </template>
 
@@ -90,15 +91,17 @@ export default {
         return {
             selectedPokemon: '',
             selectPokemonUrl: '',
+            dialog: false,
         }
     },
     methods: {
         selectPokemon(pokemonName: string, pokemonUrl: string) {
-            this.selectedPokemon = pokemonName
-            this.selectPokemonUrl = pokemonUrl
+            this.selectedPokemon = pokemonName;
+            this.selectPokemonUrl = pokemonUrl;
+            this.dialog = true;
         },
         isFavorite(pokemonName: string) {
-            return this.favoritePokemons.some((fav) => fav.name === pokemonName)
+            return this.favoritePokemons.some((fav) => fav.name === pokemonName);
         },
     }
 }
