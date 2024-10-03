@@ -11,6 +11,7 @@ interface Pokemon {
 
 export function useUtils(pokemonList: Ref<Pokemon[]>) {
     const selectedPokemon = ref<Pokemon | null>(null);
+    const dialog = ref(false);
 
     const getPokemonNumber = (url: string, id?: number): string => {
         if (!url && !id) return '';
@@ -32,6 +33,7 @@ export function useUtils(pokemonList: Ref<Pokemon[]>) {
     const selectPokemon = (pokemonName: string) => {
         selectedPokemon.value =
             pokemonList.value.find((p) => p.name === pokemonName) || null
+            dialog.value = true; 
     }
 
     return {

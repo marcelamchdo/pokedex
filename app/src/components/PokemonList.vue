@@ -33,7 +33,7 @@
 
         <PokemonDetails
             v-if="selectedPokemon"
-            :pokemonName="selectedPokemon.name"
+            :pokemonName="selectedPokemon ? selectedPokemon.name : ''"
             :pokemonImage="getPokemonImage(selectPokemonUrl)"
             v-model:dialog="dialog"
         />
@@ -95,21 +95,28 @@ export default {
     setup(props) {
         const pokemonListRef = ref<Pokemon[]>(props.pokemonList)
         const favoritePokemonsRef = ref<Pokemon[]>(props.favoritePokemons)
-        
-
-        const { selectedPokemon, selectPokemon } = useUtils(pokemonListRef);
-
-        const { isFavorite } = useFavorites(favoritePokemonsRef, pokemonListRef);
-
+        const { selectedPokemon } = useUtils(pokemonListRef)
+        const { isFavorite } = useFavorites(favoritePokemonsRef, pokemonListRef)
         const selectPokemonUrl = ref<string>('')
         const dialog = ref<boolean>(false)
+
+        const handleSelectPokemon = (pokemonName: string) => {
+            const pokemon = pokemonListRef.value.find(
+                (p) => p.name === pokemonName
+            )
+            if (pokemon) {
+                selectedPokemon.value = pokemon
+                selectPokemonUrl.value = pokemon.url
+                dialog.value = true
+            }
+        }
 
         return {
             pokemonListRef,
             favoritePokemonsRef,
             selectedPokemon,
             selectPokemonUrl,
-            selectPokemon,
+            selectPokemon: handleSelectPokemon,
             isFavorite,
             dialog,
             ...props,

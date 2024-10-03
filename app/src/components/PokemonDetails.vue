@@ -81,6 +81,7 @@
 import { defineComponent, watch } from 'vue';
 import { usePokemonDetails } from '../composables/usePokemonDetails';
 
+
 export default defineComponent({
     props: {
         pokemonName: {
@@ -99,6 +100,7 @@ export default defineComponent({
     emits: ['update:dialog'],
     setup(props, { emit }) {
     const { pokemonDetails, getPokemonDetails } = usePokemonDetails()
+    
 
     const capitalize = (str: string) => {
       if (!str) return ''
