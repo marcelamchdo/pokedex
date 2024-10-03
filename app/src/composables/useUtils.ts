@@ -13,17 +13,16 @@ export function useUtils(pokemonList: Ref<Pokemon[]>) {
     const selectedPokemon = ref<Pokemon | null>(null);
 
     const getPokemonNumber = (url: string, id?: number): string => {
-        const segments = url.split('/')
+        if (!url && !id) return '';
+        const segments = url.split('/') || []
         const pokemonId = id || (url ? segments[segments.length - 2] : null)
-        if (!pokemonId) return ''
-
-        return String(pokemonId).padStart(3, '0')
+        return pokemonId ? String(pokemonId).padStart(3, '0') : '';
     }
 
     const getPokemonImage = (url: string, id?: number): string => {
-        const segments = url.split('/')
+        if (!url && !id) return '';
+        const segments = url.split('/') || []
         const pokemonId = id || (url ? segments[segments.length - 2] : null)
-        if (!pokemonId) return ''
 
         const imageUrl = `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${pokemonId}.png`
         return imageUrl

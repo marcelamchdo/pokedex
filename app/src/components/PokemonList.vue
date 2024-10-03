@@ -21,7 +21,7 @@
                     :toggleFavorite="toggleFavorite"
                     :pokemonNumber="getPokemonNumber(pokemon.url, pokemon.id)"
                     :pokemonImage="getPokemonImage(pokemon.url, pokemon.id)"
-                    :selectPokemon="() => selectPokemon(pokemon.name, pokemon.url)"
+                    :selectPokemon="() => selectPokemon(pokemon.name)"
                 />
             </v-col>
         </v-row>
@@ -31,11 +31,12 @@
         </v-btn>
         <p v-if="isLoading">Carregando...</p>
 
-        <PokemonDetails 
-        v-if="selectedPokemon" 
-        :pokemonName="selectedPokemon" 
-        :pokemonImage="getPokemonImage(selectPokemonUrl)"
-        v-model:dialog="dialog"/>
+        <PokemonDetails
+            v-if="selectedPokemon"
+            :pokemonName="selectedPokemon.name"
+            :pokemonImage="getPokemonImage(selectPokemonUrl)"
+            v-model:dialog="dialog"
+        />
     </v-container>
 </template>
 
@@ -43,13 +44,17 @@
 import PokemonCard from './PokemonCard.vue'
 import PokemonDetails from './PokemonDetails.vue'
 import '../styles/index.css'
+import { ref } from 'vue'
+import { useUtils } from '../composables/useUtils'
+import { useFavorites } from '../composables/useFavorites'
 
 interface Pokemon {
-    name: string;
-    url: string;
-    id?: null,
-    type: { name: string; colorName: string }[]; 
-    color: string;
+    name: string
+    url: string
+    id?: number | null
+    type: { name: string; colorName: string }[]
+    color: string
+    isFavorite: boolean
 }
 
 export default {
@@ -87,22 +92,28 @@ export default {
             required: true,
         },
     },
-    data() {
+    setup(props) {
+        const pokemonListRef = ref<Pokemon[]>(props.pokemonList)
+        const favoritePokemonsRef = ref<Pokemon[]>(props.favoritePokemons)
+        
+
+        const { selectedPokemon, selectPokemon } = useUtils(pokemonListRef);
+
+        const { isFavorite } = useFavorites(favoritePokemonsRef, pokemonListRef);
+
+        const selectPokemonUrl = ref<string>('')
+        const dialog = ref<boolean>(false)
+
         return {
-            selectedPokemon: '',
-            selectPokemonUrl: '',
-            dialog: false,
+            pokemonListRef,
+            favoritePokemonsRef,
+            selectedPokemon,
+            selectPokemonUrl,
+            selectPokemon,
+            isFavorite,
+            dialog,
+            ...props,
         }
     },
-    methods: {
-        selectPokemon(pokemonName: string, pokemonUrl: string) {
-            this.selectedPokemon = pokemonName;
-            this.selectPokemonUrl = pokemonUrl;
-            this.dialog = true;
-        },
-        isFavorite(pokemonName: string) {
-            return this.favoritePokemons.some((fav) => fav.name === pokemonName);
-        },
-    }
 }
 </script>
