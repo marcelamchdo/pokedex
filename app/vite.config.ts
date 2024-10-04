@@ -14,4 +14,9 @@ export default defineConfig({
       ],
     },
   },
+  resolve: {
+    alias: {
+      '@mdi/font': '/node_modules/@mdi/font',
+    },
+  }
 })

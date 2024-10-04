@@ -8,6 +8,7 @@ import * as directives from 'vuetify/directives'
 import router from './router'
 import '@mdi/font/css/materialdesignicons.css'
 
+
 const vuetify = createVuetify({
     components,
     directives,
