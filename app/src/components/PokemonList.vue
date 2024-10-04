@@ -1,5 +1,5 @@
 <template>
-    <v-container fluid>
+    <v-container class="cards-list" fluid>
         <v-row
             justify="center"
             align="center"
@@ -26,8 +26,9 @@
             </v-col>
         </v-row>
 
-        <v-btn v-if="!isLoading" @click="loadMore" color="primary">
-            Carregar Mais
+        <v-btn v-if="!isLoading" @click="loadMore"
+        class="btn-loadmore">
+            Load More
         </v-btn>
         <p v-if="isLoading">Carregando...</p>
 

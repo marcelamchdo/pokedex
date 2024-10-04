@@ -26,15 +26,23 @@
                 </v-btn>
             </template>
 
-            <v-btn class="input" icon @click="toggleFilterSheet">
+            <!-- <v-btn class="input" icon @click="toggleFilterSheet">
                 <v-icon>mdi-filter-variant</v-icon>
-            </v-btn>
+            </v-btn> -->
 
-            <v-btn @click="toggleTheme">toggle theme</v-btn>
+            <v-btn class="input" icon @click="toggleTheme">
+                <v-icon>
+                    {{
+                        isDarkTheme
+                            ? 'mdi-white-balance-sunny'
+                            : 'mdi-moon-waning-crescent'
+                    }}
+                </v-icon>
+            </v-btn>
         </v-app-bar>
 
         <v-main>
-            <v-container>
+            <v-container class="container-list">
                 <v-btn to="/" text>Todos os Pokémon</v-btn>
                 <v-btn to="/favorites" text>Favoritos</v-btn>
 
@@ -122,6 +130,15 @@ export default {
         const { toggleFavorite } = useFavorites(favoritePokemons, pokemonList)
 
         const selectedPokemon = ref(null)
+
+        const isDarkTheme = ref(theme.global.current.value.dark)
+
+        function toggleTheme() {
+            theme.global.name.value = theme.global.current.value.dark
+                ? 'light'
+                : 'dark'
+            isDarkTheme.value = !theme.global.current.value.dark
+        }
 
         function toggleTheme() {
             theme.global.name.value = theme.global.current.value.dark
@@ -254,6 +271,7 @@ export default {
             toggleFilterSheet,
             selectedTypes,
             toggleTheme,
+            isDarkTheme,
         }
     },
 }
