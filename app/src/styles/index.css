@@ -142,3 +142,55 @@ div.vtoolbar_content {
   font-size: 100px;
 
 }
+
+.title-details{
+  background-color: #960910;
+}
+
+.info-details {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  font-weight: bold;
+}
+
+.title-info-details {
+  font-size: 32px;
+  font-weight: bold;
+  margin: 0;
+  padding: 0;
+}
+
+.divider {
+  margin: 24px;
+}
+
+.info-statistic {
+  display: flex;
+  flex-direction: column;
+  align-items: first baseline;
+  font-weight: bold;
+  list-style-type: none;
+  gap: 12px;
+}
+
+.info-statistic-title {
+  list-style-type: none;
+  font-size: 24px;
+  font-weight: bold;
+  text-transform: capitalize;
+}
+
+.info-statistic-list {
+  list-style-type: none;
+  font-size: 16px;
+  font-weight: 500;
+  text-transform: capitalize;
+}
+
+.evolutions-row {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 12px;
+}

@@ -163,6 +163,7 @@ export default {
             })
         }
 
+
         //busca pokemon na lista global
         const searchPokemon = async () => {
             const searchValue = searchQuery.value.trim().toLowerCase()

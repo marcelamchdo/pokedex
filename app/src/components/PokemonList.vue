@@ -26,17 +26,18 @@
             </v-col>
         </v-row>
 
-        <v-btn v-if="!isLoading" @click="loadMore"
-        class="btn-loadmore">
+        <v-btn v-if="!isLoading" @click="loadMore" class="btn-loadmore">
             Load More
         </v-btn>
         <p v-if="isLoading">Carregando...</p>
 
         <PokemonDetails
             v-if="selectedPokemon"
-            :pokemonName="selectedPokemon ? selectedPokemon.name : ''"
+            :dialog="dialog"
+            :pokemonName="selectedPokemon.name"
             :pokemonImage="getPokemonImage(selectPokemonUrl)"
-            v-model:dialog="dialog"
+            v-model="dialog"
+            @update:dialog="dialog = $event"
         />
     </v-container>
 </template>
@@ -45,7 +46,7 @@
 import PokemonCard from './PokemonCard.vue'
 import PokemonDetails from './PokemonDetails.vue'
 import '../styles/index.css'
-import { ref } from 'vue'
+import { ref, watch } from 'vue'
 import { useUtils } from '../composables/useUtils'
 import { useFavorites } from '../composables/useFavorites'
 
@@ -94,21 +95,31 @@ export default {
         },
     },
     setup(props) {
-        const pokemonListRef = ref<Pokemon[]>(props.pokemonList)
+        const pokemonListRef = ref<Pokemon[]>([])
         const favoritePokemonsRef = ref<Pokemon[]>(props.favoritePokemons)
         const { selectedPokemon } = useUtils(pokemonListRef)
         const { isFavorite } = useFavorites(favoritePokemonsRef, pokemonListRef)
         const selectPokemonUrl = ref<string>('')
         const dialog = ref<boolean>(false)
 
+        watch(
+            () => props.pokemonList,
+            (newPokemonList) => {
+                pokemonListRef.value = newPokemonList
+            },
+            { immediate: true }
+        )
+
         const handleSelectPokemon = (pokemonName: string) => {
             const pokemon = pokemonListRef.value.find(
-                (p) => p.name === pokemonName
+                (p) => p.name.toLowerCase() === pokemonName.toLowerCase()
             )
             if (pokemon) {
                 selectedPokemon.value = pokemon
                 selectPokemonUrl.value = pokemon.url
                 dialog.value = true
+            } else {
+                console.log('Pokemon não encontrado:', pokemonName)
             }
         }
 
